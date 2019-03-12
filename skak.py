@@ -12,6 +12,8 @@ class Main:
 
         self.whose_move = True #hvis tur det er. Hvis den er initialiseret som False, er hvid AI. Ellers er sort AI.
 
+        #Robotprogrammer
+
         #Pygame
         pg.init()
         self.screen = pg.display.set_mode((800, 600))
@@ -75,14 +77,15 @@ class Main:
         else:
             self.board.push(chess.Move.from_uci(move))
         print(str(self.return_color(self.whose_move)) + " playing " + str(move))
-        print(self.board.unicode())
-        print("---------------")
+        print(str(self.board.unicode()) + "\n ---------------")
+
+        #Robotprogrammer
 
     def return_color(self, side):
         if side:
-            return "black"
-        if not side:
             return "white"
+        if not side:
+            return "black"
 
     def draw(self, pygame):
         def rect(x, y, w, h, color_rgb):
