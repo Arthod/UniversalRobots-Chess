@@ -3,7 +3,7 @@ import chess.engine
 import pygame as pg
 import numpy as np
 import sys
-from rTData import RTData
+from RTData import RTData
 from robotprogrammer import Robot_programmer
 
 
@@ -20,13 +20,19 @@ class Main:
         self.robotprogrammer.connect("10.130.58.11")
         
         self.robot = RTData()
-        #Robot 1 : 1 0 . 1 3 0 . 5 8 . 1 1
-        #Robot 2 : 1 0 . 1 3 0 . 5 8 . 1 2
-        #Robot 3 : 1 0 . 1 3 0 . 5 8 . 1 3
-        #Robot 4 : 1 0 . 1 3 0 . 5 8 . 1 4
         self.robot.connect("10.130.58.11", False)
+
         self.robotprogrammer.move_home()
-        #self.robotprogrammer.open_gripper()
+
+        #Misc
+        self.from_move = ""
+        self.from_move_coordinates = (0, 0)
+        self.to_move = ""
+        self.columns = ["a", "b", "c", "d", "e", "f", "g", "h"]
+        self.rows = ["8", "7", "6", "5", "4", "3", "2", "1"]
+
+        ready = True
+        timer_buttons = 0
 
         #Pygame
         pg.init()
@@ -37,16 +43,7 @@ class Main:
         pg.font.init()
 
         done = False
-        print (self.board.unicode_array()[1])
 
-        self.from_move = ""
-        self.from_move_coordinates = (0, 0)
-        self.to_move = ""
-        columns = ["a", "b", "c", "d", "e", "f", "g", "h"]
-        rows = ["8", "7", "6", "5", "4", "3", "2", "1"]
-
-        ready = True
-        timer = 0
         while not done:
             #Init
             for event in pg.event.get():
@@ -54,10 +51,10 @@ class Main:
                     done = True
             pressed = pg.key.get_pressed()
 
-            timer += 1
-            if timer > 60:
+            timer_buttons += 1
+            if timer_buttons > 60:
                 ready = True
-                timer = 0
+                timer_buttons = 0
 
             #Buttons
             mouse = pg.mouse.get_pos()
@@ -73,7 +70,7 @@ class Main:
                         self.robotprogrammer.close_gripper()
                         print("Button close gripper")
                     ready = False
-                    timer = 0
+                    timer_buttons = 0
 
             #AI to move
             if not self.whose_move:
@@ -86,7 +83,7 @@ class Main:
                 x = int(pg.mouse.get_pos()[0] / 70)
                 y = int(pg.mouse.get_pos()[1] / 70)
                 if x < 8 and y < 8:
-                    move = columns[x] + rows[y]
+                    move = self.columns[x] + self.rows[y]
                     if pg.mouse.get_pressed()[0]:
                         self.from_move = move
                         self.from_move_coordinates = (x, y)
@@ -113,22 +110,9 @@ class Main:
             return (from_coordinate, to_coordinate)
 
         def char_to_int(char):
-            if char == "a":
-                return 1
-            if char == "b":
-                return 2
-            if char == "c":
-                return 3
-            if char == "d":
-                return 4
-            if char == "e":
-                return 5
-            if char == "f":
-                return 6
-            if char == "g":
-                return 7
-            if char == "h":
-                return 8
+            for i in range(len(self.columns)):
+                if self.columns[i] == char:
+                    return i+1
 
         def map_value(value, start1, stop1, start2, stop2):
             leftSpan = stop1 - start1

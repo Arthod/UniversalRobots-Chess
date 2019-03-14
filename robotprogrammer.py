@@ -117,7 +117,6 @@ class Robot_programmer():
 
     #Grab piece, close gripper
         #CLOSE HERE
-        time.sleep(5)
         self.send_socket_move_xyz(from_x, from_y, self.top_z) #Go up
 
     #Go to to_position
