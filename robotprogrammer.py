@@ -9,7 +9,7 @@ class Robot_programmer():
         self.s.settimeout(10)
         self.connected = False
         
-        self.top_z = 245/1000.0
+        self.top_z = 245.8/1000.0
         self.bottom_z = 50/1000.0
 
     def connect(self, ip='10.130.58.11'):
@@ -20,7 +20,6 @@ class Robot_programmer():
         try:
             #print("Opening IP Address" + TCP_IP)
             self.s.connect((self.TCP_IP, TCP_PORT))
-            response = self.s.recv(BUFFER_SIZE)
             self.connected = True
         except socket.error:
             print("Socket error")
@@ -77,14 +76,14 @@ class Robot_programmer():
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(10)
         try:
-        	print("Opening IP Address" + self.TCP_IP)
+        	#print("Opening IP Address" + self.TCP_IP)
         	s.connect((self.TCP_IP, TCP_PORT))
-        	response = s.recv(BUFFER_SIZE)
         except socket.error:
         	print("Socket error")
         	s.close()
         
         s.send(b"load /programs/opengrip.urp\n")
+        time.sleep(0.5)
         s.send(b"play\n")
 
         s.close()
@@ -96,38 +95,46 @@ class Robot_programmer():
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(10)
         try:
-        	print("Opening IP Address" + self.TCP_IP)
         	s.connect((self.TCP_IP, TCP_PORT))
-        	response = s.recv(BUFFER_SIZE)
         except socket.error:
         	print("Socket error")
         	s.close()
 
         s.send(b"load /programs/closegrip.urp\n")
+        time.sleep(0.5)
         s.send(b"play\n")
 
         s.close()
 
     def move_piece(self, from_x, from_y, to_x, to_y):
-        self.s.send(b'def move_piece():\n')
+        self.s.send(b'def move_to_pickup():\n')
         
-    #Go to from_position
+        #Go to from_position
         self.send_socket_move_xyz(from_x, from_y, self.top_z) #Go over
         self.send_socket_move_xyz(from_x, from_y, self.bottom_z) #Go down
 
-    #Grab piece, close gripper
-        #CLOSE HERE
+        self.s.send(b'end\n')
+        time.sleep(6)
+        self.close_gripper() #Close gripper, take piece
+        time.sleep(2)
+        
+        self.s.send(b'def move_to_release():\n')
         self.send_socket_move_xyz(from_x, from_y, self.top_z) #Go up
 
-    #Go to to_position
-        self.send_socket_move_xyz(to_x, to_y, self.top_z)
-        self.send_socket_move_xyz(to_x, to_y, self.bottom_z)
-
-    #Put piece, open gripper
-        #OPEN HERE
-        self.send_socket_move_xyz(to_x, to_y, self.top_z) #Go up
-
+        #Go to to_position
+        self.send_socket_move_xyz(to_x, to_y, self.top_z) #Go over
+        self.send_socket_move_xyz(to_x, to_y, self.bottom_z) #Go down
         self.s.send(b'end\n')
+        time.sleep(6)
+        self.open_gripper() #Open gripper
+        time.sleep(2)
+
+        self.s.send(b'def move_up_to_end():\n')
+        self.send_socket_move_xyz(to_x, to_y, self.top_z) #Go up
+        self.s.send(b'end\n')
+        time.sleep(1)
+
+
 
     def send_socket_move_xyz(self, x, y, z):
         self.s.send(b'  var_1=get_actual_tcp_pose()\n')

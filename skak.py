@@ -2,7 +2,7 @@ import chess
 import chess.engine
 import pygame as pg
 import numpy as np
-import sys
+import asyncio
 from RTData import RTData
 from robotprogrammer import Robot_programmer
 
@@ -21,8 +21,6 @@ class Main:
         
         self.robot = RTData()
         self.robot.connect("10.130.58.11", False)
-
-        self.robotprogrammer.move_home()
 
         #Misc
         self.from_move = ""
@@ -45,6 +43,7 @@ class Main:
         done = False
 
         while not done:
+            self.draw(pg)
             #Init
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -73,10 +72,15 @@ class Main:
                     timer_buttons = 0
 
             #AI to move
-            if not self.whose_move:
-                result = engine.play(self.board, chess.engine.Limit(time=15))
-                self.play_move(result.move, True)
-                self.whose_move = True
+            if not self.whose_move or self.whose_move: #Any atm.
+                try:
+                    result = engine.play(self.board, chess.engine.Limit(time=5))
+                except:
+                    print("ERROR: Engine crashed")
+                else:
+                    self.play_move(result.move, True)
+                    self.whose_move = True
+
 
             #Player to move
             if self.whose_move:
@@ -101,7 +105,6 @@ class Main:
 
             pg.display.flip()
             clock.tick(60)
-            self.draw(pg)
 
     def play_move(self, move, computer):
         def move_to_coordinates(the_move):
@@ -133,7 +136,6 @@ class Main:
         coords_to = move_to_coordinates(str(move))[1]
         move_to_x = map_value(coords_to[0], 0, 8, 0, 388) - 588
         move_to_y = map_value(coords_to[1], 0, 8, 0, 388) - 588
-        #self.robotprogrammer.move_xyz(move_to_x/1000.0, move_to_y/1000.0, 245/1000.0)
 
         #Coords from
         coords_from = move_to_coordinates(str(move))[0]
@@ -141,6 +143,7 @@ class Main:
         move_from_y = map_value(coords_from[1], 0, 8, 0, 388) - 588
         
         self.robotprogrammer.move_piece(move_from_x/1000.0, move_from_y/1000.0, move_to_x/1000.0, move_to_y/1000.0)
+        #while self.robot.return_program_state() == 0:
 
         #x = -588 .. -200		Delta = -388
         #y = -588 .. -200		Delta = -388

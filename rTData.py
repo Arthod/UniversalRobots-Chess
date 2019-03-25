@@ -36,7 +36,6 @@ class RTData():
                 try:
                     print("Opening IP Address" + TCP_IP)
                     self.s.connect((TCP_IP, TCP_PORT))
-                    response = self.s.recv(BUFFER_SIZE)
                     self.connected = True
                 except socket.error:
                 	 print("Socket error")
@@ -76,7 +75,8 @@ class RTData():
         data = b'\x00\x00\x00\x00' + data
         #print('fmt: '+fmt)
         #print('len: ' + str(len(data)))
-        if len(data) == 1064:
+        #print(len(data))
+        if len(data) == 1060+4:
             #print(time.time())
             t = struct.unpack(self.fmt, data)
             #print(t)
@@ -102,8 +102,11 @@ class RTData():
             self.tool_frame = []
             for i in range(56,62):
                 self.tool_frame.append(t[i])
-            self.program_state = t[-1]
+            self.program_state = t[132]
 
             #out_file = open("data.bin", "wb") # open for [w]riting as [b]inary
             #out_file.write(data)
             #out_file.close()
+
+    def return_program_state(self):
+        return self.program_state
