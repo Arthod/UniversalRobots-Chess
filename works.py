@@ -28,11 +28,27 @@ while not board.is_game_over():
     where_from = move_to_coordinates(str(result.move))[0]
 
     print(where_from, where_to)
+    #Capture piece
     board_array = board.unicode_array()
     board_array = remove_instance(" ", board_array)
     board_array = remove_instance("\n", board_array)
     print(str(board_array[((where_from[0]-1) + (8-where_from[1])*8)]) + "-->" + str(board_array[((where_to[0]-1) + (8-where_to[1])*8)]))
     time.sleep(0.01)
+
+    #Castling
+    castled = True
+    if str(result.move) == "e1g1":
+        new_rook_position = "g1"
+    elif str(result.move) == "e1c1":
+        new_rook_position = "c1"
+    elif str(result.move) == "e8c8":
+        new_rook_position = "c8"
+    elif str(result.move) == "e8g8":
+        new_rook_position = "g8"
+    else:
+        castled = False
+    print(castled)
+
     board.push(result.move)
     print(board.unicode())
     print(result.move)

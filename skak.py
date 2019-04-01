@@ -5,6 +5,7 @@ import numpy as np
 import asyncio
 from RTData import RTData
 from robotprogrammer import Robot_programmer
+import time
 
 
 class Main:
@@ -21,6 +22,10 @@ class Main:
         
         self.robot = RTData()
         self.robot.connect("10.130.58.11", False)
+
+        #Chess board real life position
+        self.board_x = -200
+        self.delta = 46 * 8
 
         #Misc
         self.from_move = ""
@@ -129,13 +134,15 @@ class Main:
                 if(i == k):
                     arr.remove(i)
             return arr
+        def map_to_board(value):
+            return map_value(value, 0, 8, 0, self.delta) + self.board_x - self.delta
 
         #Check if piece is captured
-        where_to = move_to_coordinates(str(result.move))[1]
-        where_from = move_to_coordinates(str(result.move))[0]
+        where_to = move_to_coordinates(str(move))[1]
+        where_from = move_to_coordinates(str(move))[0]
 
         print(where_from, where_to)
-        board_array = board.unicode_array()
+        board_array = self.board.unicode_array()
         board_array = remove_instance(" ", board_array)
         board_array = remove_instance("\n", board_array)
         print(str(board_array[((where_from[0]-1) + (8-where_from[1])*8)]) + "-->" + str(board_array[((where_to[0]-1) + (8-where_to[1])*8)]))
@@ -146,31 +153,53 @@ class Main:
             have_captured = True
         else:
             have_captured = False
-        print(have_captured)
 
-        #Check if castling
+        #Castling
+        castled = True
+        if str(move) == "e1g1":
+            new_rook_position = "h1f1"
+        elif str(move) == "e1c1":
+            new_rook_position = "a1d1"
 
-        if str(result.move) == "e1g1" or str(result.move) == "e1c1"
+        elif str(move) == "e8g8":
+            new_rook_position = "h8f8"
+        elif str(move) == "e8c8":
+            new_rook_position = "a8d8"
+        else:
+            castled = False
 
         if computer:
             self.board.push(move)
         else:
             self.board.push(chess.Move.from_uci(move))
-        #print(str(self.return_color(self.whose_move)) + " playing " + str(move))
-        #print(str(self.board.unicode()) + "\n ---------------")
+        print(str(self.return_color(self.whose_move)) + " playing " + str(move))
+        print(str(self.board.unicode()) + "\n ---------------")
 
         #Coords To
         coords_to = move_to_coordinates(str(move))[1]
-        move_to_x = map_value(coords_to[0], 0, 8, 0, 388) - 588
-        move_to_y = map_value(coords_to[1], 0, 8, 0, 388) - 553
+        move_to_x = map_to_board(coords_to[0])
+        move_to_y = map_to_board(coords_to[1])
 
         #Coords from
         coords_from = move_to_coordinates(str(move))[0]
-        move_from_x = map_value(coords_from[0], 0, 8, 0, 388) - 588
-        move_from_y = map_value(coords_from[1], 0, 8, 0, 388) - 553
+        move_from_x = map_to_board(coords_from[0])
+        move_from_y = map_to_board(coords_from[1])
         
-        if have_captured:
+        if have_captured: #If captured piece
             self.robotprogrammer.capture_piece(move_from_x/1000.0, move_from_y/1000.0, move_to_x/1000.0, move_to_y/1000.0)
+        elif castled: #If castled
+            self.robotprogrammer.move_piece(move_from_x/1000.0, move_from_y/1000.0, move_to_x/1000.0, move_to_y/1000.0) #Move king to square
+            
+            #Move rook to square
+            rook_from = move_to_coordinates(new_rook_position)[0]
+            rook_from_x = map_to_board(rook_from[0])
+            rook_from_y = map_to_board(rook_from[1])
+
+            rook_to = move_to_coordinates(new_rook_position)[1]
+            rook_to_x = map_to_board(rook_to[0])
+            rook_to_y = map_to_board(rook_to[1])
+            self.robotprogrammer.move_piece(rook_from_x/1000.0, rook_from_y/1000.0, rook_to_x/1000.0, rook_to_y/1000.0)
+            
         else:
             self.robotprogrammer.move_piece(move_from_x/1000.0, move_from_y/1000.0, move_to_x/1000.0, move_to_y/1000.0)
 
