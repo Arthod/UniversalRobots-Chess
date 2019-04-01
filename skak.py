@@ -56,16 +56,16 @@ class Main:
                 timer_buttons = 0
 
             #Buttons
-            mouse = pg.mouse.get_pos()
+            self.mouse = pg.mouse.get_pos()
             if pg.mouse.get_pressed()[0] and ready == True:
-                if mouse[0] > 560+40 and mouse[0] < 560+40+100:
-                    if mouse[1] > 0 and mouse[1] < 50:
+                if self.mouse[0] > 560+40 and self.mouse[0] < 560+40+100:
+                    if self.mouse[1] > 0 and self.mouse[1] < 50:
                         self.robotprogrammer.move_home()
                         print("Button home")
-                    if mouse[1] > 100 and mouse[1] < 150:
+                    if self.mouse[1] > 100 and self.mouse[1] < 150:
                         self.robotprogrammer.open_gripper()
                         print("Button open gripper")
-                    if mouse[1] > 200 and mouse[1] < 250:
+                    if self.mouse[1] > 200 and self.mouse[1] < 250:
                         self.robotprogrammer.close_gripper()
                         print("Button close gripper")
                     ready = False
@@ -83,7 +83,7 @@ class Main:
 
 
             #Player to move
-            if self.whose_move:
+            if self.whose_move:# or True:
                 x = int(pg.mouse.get_pos()[0] / 70)
                 y = int(pg.mouse.get_pos()[1] / 70)
                 if x < 8 and y < 8:
@@ -124,29 +124,61 @@ class Main:
             valueScaled = float(value - start1) / float(leftSpan)
 
             return start2 + (valueScaled * rightSpan)
+        def remove_instance(k, arr):
+            for i in arr:
+                if(i == k):
+                    arr.remove(i)
+            return arr
+
+        #Check if piece is captured
+        where_to = move_to_coordinates(str(result.move))[1]
+        where_from = move_to_coordinates(str(result.move))[0]
+
+        print(where_from, where_to)
+        board_array = board.unicode_array()
+        board_array = remove_instance(" ", board_array)
+        board_array = remove_instance("\n", board_array)
+        print(str(board_array[((where_from[0]-1) + (8-where_from[1])*8)]) + "-->" + str(board_array[((where_to[0]-1) + (8-where_to[1])*8)]))
+        captured_piece = board_array[((where_to[0]-1) + (8-where_to[1])*8)]
+        time.sleep(0.01)
+
+        if not(captured_piece in ["·", '\n', ' ']):
+            have_captured = True
+        else:
+            have_captured = False
+        print(have_captured)
+
+        #Check if castling
+
+        if str(result.move) == "e1g1" or str(result.move) == "e1c1"
 
         if computer:
             self.board.push(move)
         else:
             self.board.push(chess.Move.from_uci(move))
-        print(str(self.return_color(self.whose_move)) + " playing " + str(move))
-        print(str(self.board.unicode()) + "\n ---------------")
+        #print(str(self.return_color(self.whose_move)) + " playing " + str(move))
+        #print(str(self.board.unicode()) + "\n ---------------")
 
         #Coords To
         coords_to = move_to_coordinates(str(move))[1]
         move_to_x = map_value(coords_to[0], 0, 8, 0, 388) - 588
-        move_to_y = map_value(coords_to[1], 0, 8, 0, 388) - 588
+        move_to_y = map_value(coords_to[1], 0, 8, 0, 388) - 553
 
         #Coords from
         coords_from = move_to_coordinates(str(move))[0]
         move_from_x = map_value(coords_from[0], 0, 8, 0, 388) - 588
-        move_from_y = map_value(coords_from[1], 0, 8, 0, 388) - 588
+        move_from_y = map_value(coords_from[1], 0, 8, 0, 388) - 553
         
-        self.robotprogrammer.move_piece(move_from_x/1000.0, move_from_y/1000.0, move_to_x/1000.0, move_to_y/1000.0)
-        #while self.robot.return_program_state() == 0:
+        if have_captured:
+            self.robotprogrammer.capture_piece(move_from_x/1000.0, move_from_y/1000.0, move_to_x/1000.0, move_to_y/1000.0)
+        else:
+            self.robotprogrammer.move_piece(move_from_x/1000.0, move_from_y/1000.0, move_to_x/1000.0, move_to_y/1000.0)
 
         #x = -588 .. -200		Delta = -388
         #y = -588 .. -200		Delta = -388
+
+        #x = -588 .. -200		Delta = -388
+        #y = -553 .. -166		Delta = -387
         
 
     def return_color(self, side):

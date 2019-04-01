@@ -9,8 +9,8 @@ class Robot_programmer():
         self.s.settimeout(10)
         self.connected = False
         
-        self.top_z = 245.8/1000.0
-        self.bottom_z = 50/1000.0
+        self.top_z = 150.8/1000.0
+        self.bottom_z = 79/1000.0
 
     def connect(self, ip='10.130.58.11'):
         self.TCP_IP = ip
@@ -134,6 +134,27 @@ class Robot_programmer():
         self.s.send(b'end\n')
         time.sleep(1)
 
+    def capture_piece(self, from_x, from_y, to_x, to_y):
+        self.s.send(b'def move_to_pickup():\n')
+
+        #Go to, to position
+        self.send_socket_move_xyz(to_x, to_y, self.top_z) #Go over
+        self.send_socket_move_xyz(to_x, to_y, self.bottom_z) #Go down
+        self.s.send(b'end\n')
+        time.sleep(6)
+        self.close_gripper() #Close gripper
+        time.sleep(2)
+
+        #Put on somewhere
+        self.s.send(b'def move_to_release_piece():\n')
+        self.send_socket_move_xyz(to_x, to_y, self.top_z) #Go over
+        #Somewhere
+        self.s.send(b'end\n')
+        time.sleep(6)
+        self.open_gripper()
+        time.sleep(1)
+
+        self.move_piece(from_x, from_y, to_x, to_y)
 
 
     def send_socket_move_xyz(self, x, y, z):
