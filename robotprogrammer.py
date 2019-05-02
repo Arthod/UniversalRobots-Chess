@@ -10,8 +10,9 @@ class Robot_programmer():
         self.connected = False
         
         self.top_z = 150.8/1000.0
-        self.bottom_z = 79/1000.0
-        self.drop_place_y = -100/1000.0
+        self.bottom_take_z = 72/1000.0
+        self.bottom_release_z = 72/1000.0
+        self.drop_place_y = -80/1000.0
 
     def connect(self, ip='10.130.58.11'):
         self.TCP_IP = ip
@@ -114,7 +115,7 @@ class Robot_programmer():
         
         #Go to from_position
         self.send_socket_move_xyz(from_x, from_y, self.top_z) #Go over
-        self.send_socket_move_xyz(from_x, from_y, self.bottom_z) #Go down
+        self.send_socket_move_xyz(from_x, from_y, self.bottom_take_z) #Go down
 
         self.s.send(b'end\n')
         time.sleep(6)
@@ -125,7 +126,7 @@ class Robot_programmer():
 
         #Go to to_position
         self.send_socket_move_xyz(to_x, to_y, self.top_z) #Go over
-        self.send_socket_move_xyz(to_x, to_y, self.bottom_z) #Go down
+        self.send_socket_move_xyz(to_x, to_y, self.bottom_release_z) #Go down
         self.s.send(b'end\n')
         time.sleep(6)
         self.open_gripper() #Open gripper
@@ -140,7 +141,7 @@ class Robot_programmer():
 
         #Go to, to position
         self.send_socket_move_xyz(to_x, to_y, self.top_z) #Go over
-        self.send_socket_move_xyz(to_x, to_y, self.bottom_z) #Go down
+        self.send_socket_move_xyz(to_x, to_y, self.bottom_take_z) #Go down
         self.s.send(b'end\n')
         time.sleep(6)
         self.close_gripper() #Close gripper

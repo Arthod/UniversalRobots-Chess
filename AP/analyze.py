@@ -1,5 +1,10 @@
 from PIL import Image, ImageFilter
 import numpy as np
+import cv2
+import time
+
+
+
 
 def check_board_move(image_before, image_after):
     pass
@@ -32,6 +37,17 @@ def find_difference(image_before, image_after):
     diff_img = Image.fromarray(np.uint8(diffe))
     shrunken_diff_img = shrink_image(8, diff_img, "difference_shrunken.png")
     diff_img.save("difference.png")
+
+video = cv2.VideoCapture(1)
+
+check, frame = video.read()
+
+cv2.imshow("Capturing", frame)
+cv2.imwrite("2.png", frame)
+
+cv2.waitKey(0)
+
+video.release()
 
 img1 = Image.open("1.png")
 img1_shrunken = shrink_image(8*35, img1, "1_shrunken.png")

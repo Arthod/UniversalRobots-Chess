@@ -79,9 +79,9 @@ class Main:
             #AI to move
             if not self.whose_move or self.whose_move: #Any atm.
                 try:
-                    result = engine.play(self.board, chess.engine.Limit(time=5))
+                    result = engine.play(self.board, chess.engine.Limit(time=1)) #time=5
                 except:
-                    print("ERROR: Engine crashed")
+                    print("Engine crashede")
                 else:
                     self.play_move(result.move, True)
                     self.whose_move = True

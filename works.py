@@ -2,6 +2,16 @@ import chess
 import time
 import chess.engine
 
+import cv2
+video_capture = cv2.VideoCapture(0)
+# Check success
+if not video_capture.isOpened():
+    raise Exception("Could not open video device")
+# Read picture. ret === True on success
+ret, frame = video_capture.read()
+# Close device
+video_capture.release()
+
 engine = chess.engine.SimpleEngine.popen_uci("stockfish")
 
 board = chess.Board()
@@ -22,6 +32,10 @@ def remove_instance(k, arr):
             arr.remove(i)
     return arr
 
+
+
+
+'''
 while not board.is_game_over():
     result = engine.play(board, chess.engine.Limit(time=0.100))
     where_to = move_to_coordinates(str(result.move))[1]
@@ -57,3 +71,4 @@ if board.is_game_over():
     print(board.result())
 
 engine.quit()
+'''
