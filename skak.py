@@ -46,7 +46,6 @@ class Main:
         pg.font.init()
 
         done = False
-
         while not done:
             self.draw(pg)
             #Init
@@ -79,7 +78,9 @@ class Main:
             #AI to move
             if not self.whose_move or self.whose_move: #Any atm.
                 try:
+                    self.draw(pg)
                     result = engine.play(self.board, chess.engine.Limit(time=1)) #time=5
+                    self.draw(pg)
                 except:
                     print("Engine crashede")
                 else:
@@ -145,7 +146,7 @@ class Main:
         board_array = self.board.unicode_array()
         board_array = remove_instance(" ", board_array)
         board_array = remove_instance("\n", board_array)
-        print(str(board_array[((where_from[0]-1) + (8-where_from[1])*8)]) + "-->" + str(board_array[((where_to[0]-1) + (8-where_to[1])*8)]))
+        print(str(board_array[((where_from[0]-1) + (8-where_from[1])*8)]) + " --> " + str(board_array[((where_to[0]-1) + (8-where_to[1])*8)]))
         captured_piece = board_array[((where_to[0]-1) + (8-where_to[1])*8)]
         time.sleep(0.01)
 
