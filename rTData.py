@@ -24,7 +24,6 @@ class RTData():
     def connect(self, ip, simulate=False):
         TCP_IP = ip
         TCP_PORT = 30003
-        BUFFER_SIZE = 1060
 
         self.simulate = simulate
 
