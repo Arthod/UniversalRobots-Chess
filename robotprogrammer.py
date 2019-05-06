@@ -29,47 +29,7 @@ class Robot_programmer():
 
     def move_home(self):
         if self.connected:
-            #Prædefineret home-position:
-            #(Når vi skal sende en streng til robotten,
-            # skal den konverteres til et bytearrayself.
-            # derfor står der b' foran strengen.)
             self.s.send(b'  movej([0,-1.5708, 1.5708, -1.5708, -1.5708, 0])\n')
-
-    def move_xyz(self, x, y, z):
-        if self.connected:
-            self.s.send(b'def move_xyz():\n')
-            self.send_socket_move_xyz(x, y, z)
-
-            self.s.send(b'end\n')
-            
-    def move_positions(self, pos, z):
-        if self.connected:
-            self.s.send(b'def myProg():\n')
-            
-            self.s.send(b'  var_1=get_actual_tcp_pose()\n')
-            st = '  var_1[2] = {}\n'.format(z/1000.0)
-            self.s.send(bytearray(st,'utf8'))
-            
-            for i in range(len(pos)):
-                x = pos[i][0]-487.0
-                y = pos[i][1]-107.0
-                
-                #81.8
-                
-                #x = -487.0
-                #y = -107.0
-            
-                self.s.send(b'  var_1=get_actual_tcp_pose()\n')
-                st = '  var_1[0] = {}\n'.format(x/1000.0)
-                self.s.send(bytearray(st,'utf8'))
-                st = '  var_1[1] = {}\n'.format(y/1000.0)
-                self.s.send(bytearray(st,'utf8'))
-                st = '  var_1[2] = {}\n'.format(z/1000.0)
-                self.s.send(bytearray(st,'utf8'))
-                self.s.send(b'  movel(var_1, r = 0.002)\n')
-                self.s.send(bytearray(st,'utf8'))
-            self.s.send(b'  movej([0,-1.5708, 1.5708, -1.5708, -1.5708, 0])\n')
-            self.s.send(b'end\n')
             
     def open_gripper(self):
         TCP_PORT = 29999
@@ -111,6 +71,11 @@ class Robot_programmer():
         s.close()
 
     def move_piece(self, from_x, from_y, to_x, to_y):
+        dist = sqrt((to_x - from_x)**2 + (to_y - from_y)**2)
+        print("Dist: " + str(dist))
+
+
+        t = 6
         self.s.send(b'def move_to_pickup():\n')
         
         #Go to from_position
@@ -118,7 +83,7 @@ class Robot_programmer():
         self.send_socket_move_xyz(from_x, from_y, self.bottom_take_z) #Go down
 
         self.s.send(b'end\n')
-        time.sleep(6)
+        time.sleep(t)
         self.close_gripper() #Close gripper, take piece
         
         self.s.send(b'def move_to_release():\n')
@@ -128,7 +93,7 @@ class Robot_programmer():
         self.send_socket_move_xyz(to_x, to_y, self.top_z) #Go over
         self.send_socket_move_xyz(to_x, to_y, self.bottom_release_z) #Go down
         self.s.send(b'end\n')
-        time.sleep(6)
+        time.sleep(t)
         self.open_gripper() #Open gripper
 
         self.s.send(b'def move_up_to_end():\n')
@@ -139,11 +104,16 @@ class Robot_programmer():
     def capture_piece(self, from_x, from_y, to_x, to_y):
         self.s.send(b'def move_to_pickup():\n')
 
+        #This
+        self.move_piece(to_x, to_y, to_x, self.drop_place_y)
+
+        #With this
+        '''
         #Go to, to position
         self.send_socket_move_xyz(to_x, to_y, self.top_z) #Go over
         self.send_socket_move_xyz(to_x, to_y, self.bottom_take_z) #Go down
         self.s.send(b'end\n')
-        time.sleep(6)
+        time.sleep(t)
         self.close_gripper() #Close gripper
 
         #Put on somewhere
@@ -152,8 +122,9 @@ class Robot_programmer():
         #Somewhere
         self.send_socket_move_xyz(to_x, self.drop_place_y, self.top_z)
         self.s.send(b'end\n')
-        time.sleep(6)
+        time.sleep(t)
         self.open_gripper()
+        '''
 
         self.move_piece(from_x, from_y, to_x, to_y)
 

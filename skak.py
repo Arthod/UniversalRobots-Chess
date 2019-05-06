@@ -1,8 +1,6 @@
 import chess
 import chess.engine
 import pygame as pg
-import numpy as np
-import asyncio
 from RTData import RTData
 from robotprogrammer import Robot_programmer
 import time
@@ -76,20 +74,20 @@ class Main:
                     timer_buttons = 0
 
             #AI to move
-            if not self.whose_move or self.whose_move: #Any atm.
+            if not self.whose_move: #or self.whose_move: #Any atm.
                 try:
-                    self.draw(pg)
                     result = engine.play(self.board, chess.engine.Limit(time=1)) #time=5
-                    self.draw(pg)
                 except:
                     print("Engine crashede")
                 else:
+                    self.draw(pg)
                     self.play_move(result.move, True)
+                    self.draw(pg)
                     self.whose_move = True
 
 
             #Player to move
-            if self.whose_move:# or True:
+            if self.whose_move:
                 x = int(pg.mouse.get_pos()[0] / 70)
                 y = int(pg.mouse.get_pos()[1] / 70)
                 if x < 8 and y < 8:
@@ -201,7 +199,7 @@ class Main:
             rook_to_y = map_to_board(rook_to[1])
             self.robotprogrammer.move_piece(rook_from_x/1000.0, rook_from_y/1000.0, rook_to_x/1000.0, rook_to_y/1000.0)
             
-        else:
+        else: #Simply move piece
             self.robotprogrammer.move_piece(move_from_x/1000.0, move_from_y/1000.0, move_to_x/1000.0, move_to_y/1000.0)
 
         #x = -588 .. -200		Delta = -388
