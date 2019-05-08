@@ -72,9 +72,7 @@ class Robot_programmer():
 
     def move_piece(self, from_x, from_y, to_x, to_y):
         dist = math.sqrt((to_x - from_x)**2 + (to_y - from_y)**2)
-        print("Dist: " + str(dist))
-        t = 8.574 * dist + 3
-        #t = 6
+        t = 8.6 * dist + 3
 
         if not self.simulate:
             self.s.send(b'def move_to_pickup():\n')
@@ -100,8 +98,6 @@ class Robot_programmer():
             self.s.send(b'def move_up_to_end():\n')
             self.send_socket_move_xyz(to_x, to_y, self.top_z) #Go up
             self.s.send(b'end\n')
-            time.sleep(1)
-        else:
             time.sleep(1)
 
     def capture_piece(self, from_x, from_y, to_x, to_y):
