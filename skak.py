@@ -17,7 +17,7 @@ class Main:
 
         #Robotprogrammer
         self.robotprogrammer = Robot_programmer()
-        self.robotprogrammer.connect("10.130.58.11", False)
+        self.robotprogrammer.connect("10.130.58.11", 1)
         
         #self.robot = RTData()
         #self.robot.connect("10.130.58.11", True)
@@ -84,7 +84,7 @@ class Main:
                     self.draw(pg)
                     self.play_move(result.move, True)
                     self.draw(pg)
-                    self.whose_move = self.boolean_flip(self.whose_move)
+                    self.whose_move = self.flip_bool(self.whose_move)
 
 
             #Player to move
@@ -103,7 +103,7 @@ class Main:
                         except:
                             pass
                         else:
-                            self.whose_move = self.boolean_flip(self.whose_move)
+                            self.whose_move = self.flip_bool(self.whose_move)
                         self.from_move = ""
                         self.from_move_coordinates = ""
                         self.to_move = ""
@@ -123,7 +123,7 @@ class Main:
         #Draw board
         tile = True
         for ix in range(8):
-            tile = self.boolean_flip(tile)
+            tile = self.flip_bool(tile)
             for iy in range(8):
                 if (ix, iy) == self.from_move_coordinates:
                     rect(ix * 70, iy * 70, 70, 70, (160, 0, 0))
@@ -132,7 +132,7 @@ class Main:
                         rect(ix * 70, iy * 70, 70, 70, (160, 160, 160))
                     else:
                         rect(ix * 70, iy * 70, 70, 70, (255, 255, 255))
-                tile = self.boolean_flip(tile)
+                tile = self.flip_bool(tile)
                 if self.board.unicode_array()[(ix+iy*8) * 2] != "·":
                     text(ix * 70+15, iy * 70+15, self.unicode, self.board.unicode_array()[(ix+iy*8) * 2])
 
@@ -219,9 +219,9 @@ class Main:
         else: #Simply move piece
             self.robotprogrammer.move_piece(move_from_x/1000.0, move_from_y/1000.0, move_to_x/1000.0, move_to_y/1000.0)
 
-    def move_to_coordinates(self, the_move):
-        from_coordinate = (self.char_to_int(the_move[0]), int(the_move[1]))
-        to_coordinate = (self.char_to_int(the_move[2]), int(the_move[3]))
+    def move_to_coordinates(self, move):
+        from_coordinate = (self.char_to_int(move[0]), int(move[1]))
+        to_coordinate = (self.char_to_int(move[2]), int(move[3]))
         return (from_coordinate, to_coordinate)
 
     def char_to_int(self, char):
@@ -236,11 +236,13 @@ class Main:
         valueScaled = float(value - start1) / float(leftSpan)
 
         return start2 + (valueScaled * rightSpan)
+
     def remove_instance(self, k, arr):
         for i in arr:
             if(i == k):
                 arr.remove(i)
         return arr
+
     def map_to_board(self, value):
         return self.map_value(value, 0, 8, 0, self.delta) + self.board_x - self.delta
 
@@ -251,7 +253,7 @@ class Main:
             return "black"
 
 
-    def boolean_flip(self, boolean):
+    def flip_bool(self, boolean):
         if boolean:
             return False
         if not boolean:
