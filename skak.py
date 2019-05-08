@@ -11,13 +11,14 @@ class Main:
         #Chess
         engine = chess.engine.SimpleEngine.popen_uci("stockfish")
         self.board = chess.Board()
-        self.status = ""
+        self.status = ["", "", ""]
+        self.move_number = 0
 
         self.whose_move = True #hvis tur det er. Hvis den er initialiseret som False, er hvid AI. Ellers er sort AI.
 
         #Robotprogrammer
         self.robotprogrammer = Robot_programmer()
-        self.robotprogrammer.connect("10.130.58.11", False)
+        self.robotprogrammer.connect("10.130.58.11", True)
         
         #self.robot = RTData()
         #self.robot.connect("10.130.58.11", True)
@@ -80,7 +81,7 @@ class Main:
                 except:
                     print("Engine crash")
                 else:
-                    self.status = str(self.return_color(self.whose_move)) + " playing " + str(result.move)
+                    self.status[0] = str(self.return_color(self.whose_move)) + " playing " + str(result.move)
                     self.draw(pg)
                     self.play_move(result.move, True)
                     self.draw(pg)
@@ -149,10 +150,18 @@ class Main:
         rect(560+40, 200, 150, 50, (200, 160, 160))
         text(560+50, 215, self.font, "Close Gripper")
 
-        text(560+50, 400, self.font, "Status:")
-        text(560+20, 440, self.font, self.status)
+        rs_b_y = 300
+        text(560+50, , self.font, "Move " + str(self.move_number) + ":")
+        text(560+20, 420, self.font, self.status[0])
+
+        text(560+50, 460, self.font, "Status:")
+        text(560+20, 480, self.font, self.status[1])
+
+        text(560+50, 460, self.font, "..:")
+        text(560+20, 480, self.font, self.status[2])
 
     def play_move(self, move, computer):
+        self.move_number += 1
         #Check if piece is captured
         where_to = self.move_to_coordinates(str(move))[1]
         where_from = self.move_to_coordinates(str(move))[0]
