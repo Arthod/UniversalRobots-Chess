@@ -77,13 +77,17 @@ class Main:
             #AI to move
             if not self.whose_move or self.whose_move: #Any atm.
                 try:
-                    result = engine.play(self.board, chess.engine.Limit(time=1)) #time=5
+                    result = engine.play(self.board, chess.engine.Limit(time=0.1)) #time=5
                 except:
                     print("Engine crash")
                 else:
                     self.status[0] = str(self.return_color(self.whose_move)) + " playing " + str(result.move)
+
+                    self.status[1] = "Robot playing"
                     self.draw(pg)
                     self.play_move(result.move, True)
+
+                    self.status[1] = "Robot idling"
                     self.draw(pg)
                     self.whose_move = self.flip_bool(self.whose_move)
 
@@ -150,15 +154,15 @@ class Main:
         rect(560+40, 200, 150, 50, (200, 160, 160))
         text(560+50, 215, self.font, "Close Gripper")
 
-        rs_b_y = 300
-        text(560+50, , self.font, "Move " + str(self.move_number) + ":")
-        text(560+20, 420, self.font, self.status[0])
+        y_right = 300
+        text(560+50, y_right, self.font, "Move " + str(self.move_number) + ":")
+        text(560+20, y_right+20, self.font, self.status[0])
 
-        text(560+50, 460, self.font, "Status:")
-        text(560+20, 480, self.font, self.status[1])
+        text(560+50, y_right+60, self.font, "Status:")
+        text(560+20, y_right+60+20, self.font, self.status[1])
 
-        text(560+50, 460, self.font, "..:")
-        text(560+20, 480, self.font, self.status[2])
+        text(560+50, y_right+120, self.font, "..:")
+        text(560+20, y_right+120+20, self.font, self.status[2])
 
     def play_move(self, move, computer):
         self.move_number += 1

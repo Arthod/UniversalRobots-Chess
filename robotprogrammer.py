@@ -101,6 +101,8 @@ class Robot_programmer():
             self.send_socket_move_xyz(to_x, to_y, self.top_z) #Go up
             self.s.send(b'end\n')
             time.sleep(1)
+        else:
+            time.sleep(1)
 
     def capture_piece(self, from_x, from_y, to_x, to_y):
         self.move_piece(to_x, to_y, to_x, self.drop_place_y)
