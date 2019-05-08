@@ -83,11 +83,9 @@ class Main:
                 else:
                     self.status[0] = str(self.return_color(self.whose_move)) + " playing " + str(result.move)
 
-                    self.status[1] = "Robot playing"
                     self.draw(pg)
                     self.play_move(result.move, True)
 
-                    self.status[1] = "Robot idling"
                     self.draw(pg)
                     self.whose_move = self.flip_bool(self.whose_move)
 
