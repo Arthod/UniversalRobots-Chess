@@ -18,7 +18,7 @@ class Main:
 
         #Robotprogrammer
         self.robotprogrammer = Robot_programmer()
-        self.robotprogrammer.connect("10.130.58.11", True)
+        self.robotprogrammer.connect("10.130.58.11", False) #ip, simulation
         
         #self.robot = RTData()
         #self.robot.connect("10.130.58.11", True)
@@ -33,6 +33,8 @@ class Main:
         self.to_move = ""
         self.columns = ["a", "b", "c", "d", "e", "f", "g", "h"]
         self.rows = ["8", "7", "6", "5", "4", "3", "2", "1"]
+        self.last_move = ""
+        self.current_move = ""
 
         ready = True
         timer_buttons = 0
@@ -75,8 +77,9 @@ class Main:
                     timer_buttons = 0
 
             #AI to move
-            if not self.whose_move or self.whose_move: #Any atm.
+            if True: #not self.whose_move or self.whose_move: #Any atm.
                 try:
+                    self.draw(pg)
                     result = engine.play(self.board, chess.engine.Limit(time=0.1)) #time=5
                 except:
                     print("Engine crash")
@@ -91,7 +94,7 @@ class Main:
 
 
             #Player to move
-            if self.whose_move:
+            if False: #self.whose_move:
                 x = int(pg.mouse.get_pos()[0] / 70)
                 y = int(pg.mouse.get_pos()[1] / 70)
                 if x < 8 and y < 8:
@@ -106,6 +109,8 @@ class Main:
                         except:
                             pass
                         else:
+                            self.status[0] = str(self.return_color(self.whose_move)) + " playing " + str(self.from_move) + str(self.to_move)
+                            self.draw(pg)
                             self.whose_move = self.flip_bool(self.whose_move)
                         self.from_move = ""
                         self.from_move_coordinates = ""
@@ -156,13 +161,14 @@ class Main:
         text(560+50, y_right, self.font, "Move " + str(self.move_number) + ":")
         text(560+20, y_right+20, self.font, self.status[0])
 
-        text(560+50, y_right+60, self.font, "Status:")
+        text(560+50, y_right+60, self.font, "Last move:")
         text(560+20, y_right+60+20, self.font, self.status[1])
 
         text(560+50, y_right+120, self.font, "..:")
         text(560+20, y_right+120+20, self.font, self.status[2])
 
     def play_move(self, move, computer):
+
         self.move_number += 1
         #Check if piece is captured
         where_to = self.move_to_coordinates(str(move))[1]
@@ -204,31 +210,31 @@ class Main:
 
         #Coords To
         coords_to = self.move_to_coordinates(str(move))[1]
-        move_to_x = self.map_to_board(coords_to[0])
-        move_to_y = self.map_to_board(coords_to[1])
+        move_to_x = self.map_to_board(coords_to[0])/1000.0
+        move_to_y = self.map_to_board(coords_to[1])/1000.0
 
         #Coords from
         coords_from = self.move_to_coordinates(str(move))[0]
-        move_from_x = self.map_to_board(coords_from[0])
-        move_from_y = self.map_to_board(coords_from[1])
-        
+        move_from_x = self.map_to_board(coords_from[0])/1000.0
+        move_from_y = self.map_to_board(coords_from[1])/1000.0
+
         if have_captured: #If captured piece
-            self.robotprogrammer.capture_piece(move_from_x/1000.0, move_from_y/1000.0, move_to_x/1000.0, move_to_y/1000.0)
+            self.robotprogrammer.capture_piece(move_from_x, move_from_y, move_to_x, move_to_y)
         elif castled: #If castled
-            self.robotprogrammer.move_piece(move_from_x/1000.0, move_from_y/1000.0, move_to_x/1000.0, move_to_y/1000.0) #Move king to square
+            self.robotprogrammer.move_piece(move_from_x, move_from_y, move_to_x, move_to_y) #Move king to square
             
             #Move rook to square
             rook_from = self.move_to_coordinates(new_rook_position)[0]
-            rook_from_x = self.map_to_board(rook_from[0])
-            rook_from_y = self.map_to_board(rook_from[1])
+            rook_from_x = self.map_to_board(rook_from[0])/1000.0
+            rook_from_y = self.map_to_board(rook_from[1])/1000.0
 
             rook_to = self.move_to_coordinates(new_rook_position)[1]
-            rook_to_x = self.map_to_board(rook_to[0])
-            rook_to_y = self.map_to_board(rook_to[1])
-            self.robotprogrammer.move_piece(rook_from_x/1000.0, rook_from_y/1000.0, rook_to_x/1000.0, rook_to_y/1000.0)
+            rook_to_x = self.map_to_board(rook_to[0])/1000.0
+            rook_to_y = self.map_to_board(rook_to[1])/1000.0
+            self.robotprogrammer.move_piece(rook_from_x, rook_from_y, rook_to_x, rook_to_y)
             
         else: #Simply move piece
-            self.robotprogrammer.move_piece(move_from_x/1000.0, move_from_y/1000.0, move_to_x/1000.0, move_to_y/1000.0)
+            self.robotprogrammer.move_piece(move_from_x, move_from_y, move_to_x, move_to_y)
 
     def move_to_coordinates(self, move):
         from_coordinate = (self.char_to_int(move[0]), int(move[1]))

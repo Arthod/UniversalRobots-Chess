@@ -71,8 +71,9 @@ class Robot_programmer():
             s.close()
 
     def move_piece(self, from_x, from_y, to_x, to_y):
+
         dist = math.sqrt((to_x - from_x)**2 + (to_y - from_y)**2)
-        t = 8.6 * dist + 3
+        t = 7.5 * dist + 2.5 #Kan optimeres bedre mht. konstanterne a og b i den rette linje
 
         if not self.simulate:
             self.s.send(b'def move_to_pickup():\n')
