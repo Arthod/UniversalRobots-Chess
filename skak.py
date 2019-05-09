@@ -11,14 +11,15 @@ class Main:
         #Chess
         engine = chess.engine.SimpleEngine.popen_uci("stockfish")
         self.board = chess.Board()
-        self.status = ["", "", ""]
-        self.move_number = 0
+        self.status = ""
+        self.move_list = []
+        self.move_number = 1
 
         self.whose_move = True #hvis tur det er. Hvis den er initialiseret som False, er hvid AI. Ellers er sort AI.
 
         #Robotprogrammer
         self.robotprogrammer = Robot_programmer()
-        self.robotprogrammer.connect("10.130.58.11", False) #ip, simulation
+        self.robotprogrammer.connect("10.130.58.11", True) #ip, simulation
         
         #self.robot = RTData()
         #self.robot.connect("10.130.58.11", True)
@@ -67,10 +68,10 @@ class Main:
                     if self.mouse[1] > 0 and self.mouse[1] < 50:
                         self.robotprogrammer.move_home()
                         print("Button home")
-                    if self.mouse[1] > 100 and self.mouse[1] < 150:
+                    if self.mouse[1] > 50+10 and self.mouse[1] < 50+10+50:
                         self.robotprogrammer.open_gripper()
                         print("Button open gripper")
-                    if self.mouse[1] > 200 and self.mouse[1] < 250:
+                    if self.mouse[1] > 100+20 and self.mouse[1] < 100+20+50:
                         self.robotprogrammer.close_gripper()
                         print("Button close gripper")
                     ready = False
@@ -84,7 +85,7 @@ class Main:
                 except:
                     print("Engine crash")
                 else:
-                    self.status[0] = str(self.return_color(self.whose_move)) + " playing " + str(result.move)
+                    self.status = str(self.return_color(self.whose_move)) + " playing " + str(result.move)
 
                     self.draw(pg)
                     self.play_move(result.move, True)
@@ -94,7 +95,7 @@ class Main:
 
 
             #Player to move
-            if False: #self.whose_move:
+            if True: #self.whose_move:
                 x = int(pg.mouse.get_pos()[0] / 70)
                 y = int(pg.mouse.get_pos()[1] / 70)
                 if x < 8 and y < 8:
@@ -109,7 +110,7 @@ class Main:
                         except:
                             pass
                         else:
-                            self.status[0] = str(self.return_color(self.whose_move)) + " playing " + str(self.from_move) + str(self.to_move)
+                            self.status = str(self.return_color(self.whose_move)) + " playing " + str(self.from_move) + str(self.to_move)
                             self.draw(pg)
                             self.whose_move = self.flip_bool(self.whose_move)
                         self.from_move = ""
@@ -150,26 +151,34 @@ class Main:
         text(560+50, 15, self.font, "Home")
         
         #Open gripper
-        rect(560+40, 100, 150, 50, (200, 160, 160))
-        text(560+50, 115, self.font, "Open Gripper")
+        rect(560+40, 50+10, 150, 50, (200, 160, 160))
+        text(560+50, 75, self.font, "Open Gripper")
 
         #Close gripper
-        rect(560+40, 200, 150, 50, (200, 160, 160))
-        text(560+50, 215, self.font, "Close Gripper")
+        rect(560+40, 100+20, 150, 50, (200, 160, 160))
+        text(560+50, 135, self.font, "Close Gripper")
 
-        y_right = 300
+        y_right = 200
         text(560+50, y_right, self.font, "Move " + str(self.move_number) + ":")
-        text(560+20, y_right+20, self.font, self.status[0])
+        text(560+20, y_right+20, self.font, self.status)
 
-        text(560+50, y_right+60, self.font, "Last move:")
-        text(560+20, y_right+60+20, self.font, self.status[1])
+        text(560+50, y_right+60, self.font, "Move list:")
+        for i in range(len(self.move_list)):
+            text(560+20, y_right+60+20+i*20, self.font, self.move_list[i])
 
-        text(560+50, y_right+120, self.font, "..:")
-        text(560+20, y_right+120+20, self.font, self.status[2])
 
     def play_move(self, move, computer):
+        
+        if not computer:
+            move_played = chess.Move.from_uci(move)
+        else:
+            move_played = move
+        if round(self.move_number) == self.move_number:
+            self.move_list.append(str(int(self.move_number)) + ". " + str(move_played))
+        else:
+            self.move_list[int(self.move_number)-1] = self.move_list[int(self.move_number)-1] + ".." + str(move_played)
+        self.move_number += 0.5
 
-        self.move_number += 1
         #Check if piece is captured
         where_to = self.move_to_coordinates(str(move))[1]
         where_from = self.move_to_coordinates(str(move))[0]
